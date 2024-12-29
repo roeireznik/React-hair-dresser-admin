@@ -18,7 +18,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:false}));
 
 app.get("/appointments", (req,res) => {
-   var sql = 'SELECT * FROM appointments';
+   var sql = 'SELECT appointments.*, customers.customerName, hairdressers.hairdresserName FROM appointments INNER JOIN customers ON appointments.customerID = customers.customerId INNER JOIN hairdressers ON appointments.hairdresserID = hairdressers.hairdresserId';
 
    conn.query(sql, (err, results) => {
       res.send(results);

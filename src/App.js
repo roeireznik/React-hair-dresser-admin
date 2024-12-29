@@ -41,8 +41,9 @@ function App() {
       <h1>Appointments Admin</h1>
       <div id="selectContainer">
         <BasicSelect 
-          hairdresserList={hairdresserList} 
+          appointments={appointments} 
           getHairDresserValue={getHairDresserValue}
+          hairdresserList={hairdresserList}
         />
       </div>
       <div id='tableContainer'>

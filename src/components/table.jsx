@@ -5,10 +5,6 @@ import EditIcon from '@mui/icons-material/Edit';
 import axios from 'axios';
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
-import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import dayjs from 'dayjs';
 
 function BasicTable({appointments, setAppointments, hairdresserValue, hairdresserList, cutomerList}) {
@@ -92,11 +88,18 @@ function BasicTable({appointments, setAppointments, hairdresserValue, hairdresse
       confirmButtonText: 'Add' ,
       html: formSwal(action, index),
       preConfirm: () => {
+        var sel = document.getElementById("swal-input3");
+        var text1= sel.options[sel.selectedIndex].text;
+        var sel2 = document.getElementById("swal-input4");
+        var text2= sel2.options[sel2.selectedIndex].text;
         return [{   
           start: dayjs(document.getElementById('swal-input1').value).format("YYYY/MM/DD HH:mm"),
           end: dayjs(document.getElementById('swal-input2').value).format("YYYY/MM/DD HH:mm"),
           hairdresserID: document.getElementById('swal-input3').value,
           customerID: document.getElementById('swal-input4').value
+        },{
+          hairdresserName: text1,
+          customerName: text2 
         }]
       }
     })
@@ -107,24 +110,30 @@ function BasicTable({appointments, setAppointments, hairdresserValue, hairdresse
           .then(response => {
             if(response.data.status === 'added') {
               var add = [...appointments];
+
               formValues[0]["id"] = response.data.id
+              formValues[0]["customerName"] = formValues[1].customerName
+              formValues[0]["hairdresserName"] = formValues[1].hairdresserName
+
               add.push(formValues[0]);
               setAppointments(add);
             }
           })
         }else {
-          console.log(formValues[0])
           axios.put(`http://localhost:3001/appointments/edit`,[formValues[0], action])
           .then(response => {
             if(response.data.status === 'edited') {
+
               var add = [...appointments];
               formValues[0]["id"] = add[index].id;
+              formValues[0]["customerName"] = formValues[1].customerName
+              formValues[0]["hairdresserName"] = formValues[1].hairdresserName
               add[index] = formValues[0];
+
               setAppointments(add);
             }
           })
         }
-        
     }
   }
 
@@ -134,27 +143,30 @@ function BasicTable({appointments, setAppointments, hairdresserValue, hairdresse
       <Table sx={{ minWidth: 650 }} aria-label="simple table">
         <TableHead>
           <TableRow>
-            <TableCell width="30%" align="center">Appointment Time</TableCell>
-            <TableCell width="30%" align="center">Customer</TableCell>
-            <TableCell colSpan={2} width="40%" align="center" >Actions</TableCell>
+            <TableCell width="23%" align="center">Appointment Time</TableCell>
+            <TableCell width="23%" align="center">Customer</TableCell>
+            <TableCell width="23%" align="center">Hairdresser</TableCell>
+            <TableCell colSpan={2} width="32%" align="center" >Actions</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {appointments.map((appointment, index) => {
             if(hairdresserValue === appointment.hairdresserID) {
-               return <TableRow key={appointment.id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                        <TableCell align="center">{appointment.start}</TableCell>
-                        <TableCell align="center">{appointment.customerID}</TableCell>
+               return <TableRow key={parseInt(appointment.id)} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                        <TableCell align="center">{ dayjs(appointment.start).format("YYYY/MM/DD HH:mm")}</TableCell>
+                        <TableCell align="center">{appointment.customerName}</TableCell>
+                        <TableCell align="center">{appointment.hairdresserName}</TableCell>
                         <TableCell align="center"><DeleteIcon onClick={() => handleDelete(appointment.id, index)} /></TableCell>
                         <TableCell align="center"><EditIcon/></TableCell>
                       </TableRow>
             }
             if(hairdresserValue === -1) {
-              return <TableRow key={appointment.id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+              return <TableRow key={parseInt(appointment.id)} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                         <TableCell align="center">{ dayjs(appointment.start).format("YYYY/MM/DD HH:mm")}</TableCell>
-                        <TableCell align="center">{appointment.customerID}</TableCell>
-                        <TableCell align="center"><DeleteIcon onClick={() => handleDelete(appointment.id, index)} /></TableCell>
-                        <TableCell align="center"><EditIcon onClick={ () => handleAddEdit(appointment.id,index)} /></TableCell>
+                        <TableCell align="center">{appointment.customerName}</TableCell>
+                        <TableCell align="center">{appointment.hairdresserName}</TableCell>
+                        <TableCell align="center"><DeleteIcon onClick={() => handleDelete(parseInt(appointment.id), index)} /></TableCell>
+                        <TableCell align="center"><EditIcon onClick={ () => handleAddEdit(parseInt(appointment.id),index)} /></TableCell>
                       </TableRow>
             }
               
